@@ -1,12 +1,38 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, ImageBackground } from 'react-native';
+import { Asset } from 'expo-asset';
+import AppLoading from 'expo-app-loading';
+import React from 'react';
 
 export default function App() {
+  let [isLoaded, setIsLoaded] = React.useState(false);
+
+  let cacheResources = async () => {
+    const images = [require("./assets/background.jpg")];
+
+    const cacheImages = images.map(image => {
+      return Asset.fromModule(image).downloadAsync();
+    });
+
+    return Promise.all(cacheImages);
+  }
+
+  React.useEffect(() => {
+    const loadResources = async () => {
+      await cacheResources();
+      setIsLoaded(true);
+    };
+
+    loadResources();
+  }, [])
+
+  if (!isLoaded) {
+    return <AppLoading />
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <ImageBackground style={styles.container} source={require("./assets/background.jpg")}>
+    </ImageBackground>
   );
 }
 
